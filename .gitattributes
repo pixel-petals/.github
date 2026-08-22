@@ -1,2 +1,0 @@
-# Explicitly ensure bash/shell scripts use LF
-*.sh text eol=lf
