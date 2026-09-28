@@ -1,12 +1,16 @@
 name: Submodules
 
-# Tells pixel-petals/.devops this repository's main moved; .devops syncs every
-# parent following it. Self-contained, so public repositories can run it too.
+# Tells pixel-petals/.devops a repository's main moved; .devops syncs every
+# parent following it. Runs on this repository's own pushes, and every other
+# repository calls it on theirs: public here, so public and private alike can.
+# Called, github.repository is the caller, and the job's environment is the
+# caller's own `submodule-sync`, holding its notify key.
 # See pixel-petals/.devops/.github/readme.md#following-submodule-branches.
 
 on:
   push:
     branches: [main]
+  workflow_call:
 
 permissions: {}
 
