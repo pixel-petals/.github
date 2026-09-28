@@ -4,7 +4,8 @@ name: Submodules
 # parent following it. Runs on this repository's own pushes, and every other
 # repository calls it on theirs: public here, so public and private alike can.
 # Called, github.repository is the caller, and the job's environment is the
-# caller's own `submodule-sync`, holding its notify key.
+# caller's own `submodule-sync`, holding its notify key — reachable only
+# when the caller passes `secrets: inherit`.
 # See pixel-petals/.devops/.github/readme.md#following-submodule-branches.
 
 on:
