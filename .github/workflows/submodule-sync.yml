@@ -1,12 +1,15 @@
 name: Submodules
 
-# Tells pixel-petals/.devops a repository's main moved; .devops syncs every
-# parent following it. Runs on this repository's own pushes, and every other
-# repository calls it on theirs: public here, so public and private alike can.
-# Called, github.repository is the caller, and the job's environment is the
-# caller's own `submodule-sync`, holding its notify key — reachable only
-# when the caller passes `secrets: inherit`.
-# See pixel-petals/.devops/.github/readme.md#following-submodule-branches.
+# The hook every repository calls when its main moves: runs on this
+# repository's own pushes, and every other repository calls it on theirs
+# (public here, so public and private alike can). Called, github.repository is
+# the caller.
+#
+# It notifies nothing for now. It used to start .devops' submodule sync, which
+# opened pull requests moving every parent's submodule pins; repositories now
+# depend on each other through `github:` dependencies, so that sync is gone.
+# The callers stay wired up so a central automation can hang off this job
+# later without touching every repository again.
 
 on:
   push:
@@ -19,22 +22,6 @@ jobs:
   notify:
     name: Notify .devops
     runs-on: ubuntu-latest
-    environment: submodule-sync
 
     steps:
-      # Actions write on .devops alone: it can start the sync and nothing else
-      - uses: actions/create-github-app-token@v2
-        id: notify-token
-        with:
-          app-id: ${{ secrets.GH_SUBMODULE_NOTIFY_ID }}
-          private-key: ${{ secrets.GH_SUBMODULE_NOTIFY_SECRET }}
-          owner: ${{ github.repository_owner }}
-          repositories: .devops
-
-      - run: |
-          gh api --method POST "repos/${OWNER}/.devops/actions/workflows/submodules.yml/dispatches" \
-            -f ref=main -f "inputs[repository]=${GITHUB_REPOSITORY}" -f "inputs[branch]=${GITHUB_REF_NAME}"
-          echo "notified .devops of ${GITHUB_REPOSITORY}@${GITHUB_REF_NAME}"
-        env:
-          GH_TOKEN: ${{ steps.notify-token.outputs.token }}
-          OWNER: ${{ github.repository_owner }}
+      - run: echo "${GITHUB_REPOSITORY}@${GITHUB_REF_NAME} moved; no automation is listening"
